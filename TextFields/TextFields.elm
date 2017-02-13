@@ -1,0 +1,44 @@
+import Html exposing (Html, Attribute, div, input, text)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
+import String
+
+
+main =
+  Html.beginnerProgram { model = model, view = view, update = update }
+
+
+-- MODEL
+-- Starting with a record makes this easy to build on down the road (taken from the explaination
+-- in the guide)
+type alias Model =
+  { content : String
+  }
+
+model : Model
+model =
+  { content = "" }
+
+
+-- UPDATE
+
+type Msg
+  = Change String
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Change newContent ->
+      { model | content = newContent }
+
+
+-- VIEW
+
+view : Model -> Html Msg
+view model =
+  div []
+  -- onInput -> captures whatever is currently in the text field, not just
+  -- the new value (from guide)
+    [ input [ placeholder "Text to reverse", onInput Change ] []
+    , div [] [ text (String.reverse model.content) ]
+    ]
