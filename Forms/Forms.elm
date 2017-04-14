@@ -2,6 +2,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import String
+import Regex
 
 
 main =
@@ -30,6 +31,20 @@ type Msg
     | Password String
     | PasswordAgain String
 
+
+-- REGEX PATTERNS
+-- This section creates various regex patterns by first declaring the type
+-- annotation of each one (as a Regex from the Regex package), and 
+-- then declaring them right after.  You have to declare them right after
+-- otherwise Elm won't be happy
+passwordHasUpperCaseLettersPattern : Regex.Regex
+passwordHasUpperCaseLettersPattern = Regex.regex "[A-Z]"
+
+passwordHasLowerCaseLettersPattern : Regex.Regex
+passwordHasLowerCaseLettersPattern = Regex.regex "[a-z]"
+
+passwordHasNumbersPattern : Regex.Regex
+passwordHasNumbersPattern = Regex.regex "[0-9]"
 
 update : Msg -> Model -> Model
 update msg model =
@@ -69,6 +84,12 @@ viewValidation model =
     (color, message) =
       if String.length model.password <= 8 then
         ("red", "Password must be greater than 8 characters")
+      else if Regex.contains passwordHasUpperCaseLettersPattern model.password == False then
+        ("red", "Password must contain at least 1 uppercase letter")
+      else if Regex.contains passwordHasLowerCaseLettersPattern model.password == False then
+        ("red", "Password must contain at least 1 lowercase letter")
+      else if Regex.contains passwordHasNumbersPattern model.password == False then
+        ("red", "Password must contain at least 1 number")
       else
         if model.password == model.passwordAgain then
           ("green", "OK")
