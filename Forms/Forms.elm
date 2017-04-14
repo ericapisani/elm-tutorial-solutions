@@ -1,6 +1,7 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+import String
 
 
 main =
@@ -60,13 +61,18 @@ view model =
     , viewValidation model   -- call function passing in the current model
     ]
 
+-- This function is not creating a chunk of HTML that can produce message values
+-- like the `view` function, but just regular HTML (notice the change in case on `msg`)
 viewValidation : Model -> Html msg
 viewValidation model =
   let
     (color, message) =
-      if model.password == model.passwordAgain then
-        ("green", "OK")
+      if String.length model.password <= 8 then
+        ("red", "Password must be greater than 8 characters")
       else
-        ("red", "Passwords do not match!")
+        if model.password == model.passwordAgain then
+          ("green", "OK")
+        else
+          ("red", "Passwords do not match!")
   in
     div [ style [("color", color)] ] [ text message ]
