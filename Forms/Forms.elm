@@ -3,6 +3,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import String
 import Regex
+import Result
 
 
 main =
@@ -15,13 +16,14 @@ type alias Model =
   { name : String
   , password : String
   , passwordAgain : String
+  , age: String
   }
 
 
 model : Model
 -- Set default of models within record to empty strings
 model =
-  Model "" "" ""
+  Model "" "" "" ""
 
 
 -- UPDATE
@@ -30,6 +32,7 @@ type Msg
     = Name String
     | Password String
     | PasswordAgain String
+    | Age String
 
 
 -- REGEX PATTERNS
@@ -52,6 +55,9 @@ update msg model =
     Name name ->
       { model | name = name }
 
+    Age age ->
+      { model | age = age }
+
     Password password ->
       { model | password = password }
 
@@ -71,6 +77,7 @@ view model =
   -- </div>
   div []
     [ input [ type_ "text", placeholder "Name", onInput Name ] []
+    , input [ type_ "text", placeholder "Age", onInput Age ] []
     , input [ type_ "password", placeholder "Password", onInput Password ] []
     , input [ type_ "password", placeholder "Re-enter Password", onInput PasswordAgain ] []
     , viewValidation model   -- call function passing in the current model
@@ -82,18 +89,23 @@ viewValidation : Model -> Html msg
 viewValidation model =
   let
     (color, message) =
-      if String.length model.password <= 8 then
-        ("red", "Password must be greater than 8 characters")
-      else if Regex.contains passwordHasUpperCaseLettersPattern model.password == False then
-        ("red", "Password must contain at least 1 uppercase letter")
-      else if Regex.contains passwordHasLowerCaseLettersPattern model.password == False then
-        ("red", "Password must contain at least 1 lowercase letter")
-      else if Regex.contains passwordHasNumbersPattern model.password == False then
-        ("red", "Password must contain at least 1 number")
-      else
-        if model.password == model.passwordAgain then
-          ("green", "OK")
-        else
-          ("red", "Passwords do not match!")
+    -- Check that the age entered is an integer
+      case String.toInt model.age of
+        Err msg ->
+          ("red", "Age is not a number!")
+        Ok age ->      
+          if String.length model.password <= 8 then
+            ("red", "Password must be greater than 8 characters")
+          else if Regex.contains passwordHasUpperCaseLettersPattern model.password == False then
+            ("red", "Password must contain at least 1 uppercase letter")
+          else if Regex.contains passwordHasLowerCaseLettersPattern model.password == False then
+            ("red", "Password must contain at least 1 lowercase letter")
+          else if Regex.contains passwordHasNumbersPattern model.password == False then
+            ("red", "Password must contain at least 1 number")
+          else
+            if model.password == model.passwordAgain then
+              ("green", "OK")
+            else
+              ("red", "Passwords do not match!")
   in
     div [ style [("color", color)] ] [ text message ]
