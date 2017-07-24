@@ -1,6 +1,8 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Http
+import Json.Decode as Decode
 
 main =
   Html.program
@@ -23,13 +25,42 @@ init =
   (Model "cat" "waiting.gif", Cmd.none)
 
 -- UPDATE
-type Msg = MorePlease
+type Msg =
+  MorePlease
+  | NewGif (Result Http.Error String)   -- Result will either be an error (Http.Error) or the string of a new URL for the GIF
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      (model, Cmd.none)
+      (model, getRandomGif model.topic)  -- Call the getRandomGif function, passing in the topic stored on the model
+
+    NewGif (Ok newUrl) ->
+      ({ model | gifUrl = newUrl }, Cmd.none)  -- Update the gifUrl property with the new URL
+
+    NewGif (Err _) ->
+      (model, Cmd.none)  -- Don't change the model
+
+
+-- Other function definitions
+getRandomGif: String -> Cmd Msg  -- Consider this the function/method signature
+getRandomGif topic =
+  let
+    url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=" ++ topic  -- Create URL
+    -- Make the Http request with the URL
+    -- Http.get takes a String and a JSON decoder as it's args
+    -- NOTE: This doesn't actually make the Http request. It just DESCRIBES how to make the Http request
+    request = Http.get url decodeGifUrl
+  in
+    -- Turn the Http GET request into an Elm command.
+    -- The first arg is a way to turn the result of the Http request into a message for our update function.
+    -- In this case, we want to send a NewGif message.
+    Http.send NewGif request
+
+
+decodeGifUrl : Decode.Decoder String  -- Declare that decodeGifUrl is going to return a decoded (from JSON to Elm) string (I think)
+decodeGifUrl =
+  Decode.at ["data", "image_url"] Decode.string  -- Try to find a string value at json.data.image_url
 
 
 -- SUBSCRIPTIONS
