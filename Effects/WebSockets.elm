@@ -23,6 +23,7 @@ type alias Model =
 
 init : (Model, Cmd Msg)
 init =
+  -- Start with an empty input message and an empty list for the model
   (Model "" [], Cmd.none)
 
 
@@ -41,9 +42,15 @@ update msg {input, messages} =
       (Model newInput messages, Cmd.none)
 
     Send ->
+      -- On clicking 'send', clear out the model's input property, keep what messages you already have,
+      -- and send the input to the web address echo.websocket.org
+      -- Clearing out the model's input property ensures that you have to type in the text field again
+      -- before being able to send another message
       (Model "" messages, WebSocket.send "ws://echo.websocket.org" input)
 
     NewMessage str ->
+      -- Keep whatever is in the input property of the model, and append the string
+      -- to the list of messages on the model. Do nothing afterwards (Cmd.none)
       (Model input (str :: messages), Cmd.none)
 
 
@@ -51,6 +58,9 @@ update msg {input, messages} =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
+  -- Keeps the websocket alive at this address after sending messages to it.
+  -- Also receives any messages from the address and sends a Msg of type New Message
+  -- to the update function.
   WebSocket.listen "ws://echo.websocket.org" NewMessage
 
 
