@@ -14,12 +14,14 @@ main =
 -- MODEL
 type alias Model =
   {
-    dieFace : Int
+    dieFace1 : Int
+    , dieFace2: Int
   }
 
 type Msg
   = Roll
-  | NewFace Int
+  | NewFaceDie1 Int
+  | NewFaceDie2 Int
 
 
 -- UPDATE
@@ -28,17 +30,20 @@ update msg model =
   -- Produce a random number from 1 to 6, and fire a message of type NewFace with the value
   case msg of
     Roll ->
-      (model, Random.generate NewFace (Random.int 1 6))
+      (model, Random.generate NewFaceDie1 (Random.int 1 6))
 
-    NewFace newFace ->
-      (Model newFace, Cmd.none)
+    NewFaceDie1 newFace ->
+      ({ model | dieFace1 = newFace }, Random.generate NewFaceDie2 (Random.int 1 6))
 
+    NewFaceDie2 newFace ->
+      ({ model | dieFace2 = newFace }, Cmd.none)
 
 -- VIEW
 view : Model -> Html Msg
 view model =
   div []
-    [ h1 [] [ text (toString model.dieFace) ]
+    [ h1 [] [ text (toString model.dieFace1) ]
+    , h1 [] [ text (toString model.dieFace2) ]
     , button [ onClick Roll ] [ text "Roll" ]
     ]
 
@@ -55,4 +60,4 @@ subscriptions model =
 -- when the app starts
 init : (Model, Cmd Msg)
 init =
-  (Model 1, Cmd.none)
+  (Model 1 2, Cmd.none)
