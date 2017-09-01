@@ -80,7 +80,11 @@ view model =
   div []
     [ h2 [] [text model.topic]
     , img [src model.gifUrl] []
-    , input [ onInput UpdateTopic ] []
+    , input [ placeholder "Enter a new topic", onInput UpdateTopic ] []
+    , select [ onInput UpdateTopic ] [     -- Can create a helper function to create this list once it's working
+      option [] [text "Puppies"]
+      , option [] [text "Cats"]
+      ]
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , text model.error
     ]
