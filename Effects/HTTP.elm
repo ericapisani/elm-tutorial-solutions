@@ -17,12 +17,13 @@ type alias Model =
   {
     topic: String
     , gifUrl: String
+    , error: String
   }
 
 -- INIT
 init : (Model, Cmd Msg)
 init =
-  (Model "cat" "waiting.gif", Cmd.none)
+  (Model "cat" "waiting.gif" "", Cmd.none)
 
 -- UPDATE
 type Msg =
@@ -36,10 +37,10 @@ update msg model =
       (model, getRandomGif model.topic)  -- Call the getRandomGif function, passing in the topic stored on the model
 
     NewGif (Ok newUrl) ->
-      ({ model | gifUrl = newUrl }, Cmd.none)  -- Update the gifUrl property with the new URL
+      ({ model | gifUrl = newUrl, error = "" }, Cmd.none)  -- Update the gifUrl property with the new URL
 
     NewGif (Err _) ->
-      (model, Cmd.none)  -- Don't change the model
+      ({ model | error = "There was an error fetching a new image"}, Cmd.none)  -- Don't change the model
 
 
 -- Other function definitions
@@ -76,4 +77,5 @@ view model =
     [ h2 [] [text model.topic]
     , img [src model.gifUrl] []
     , button [ onClick MorePlease ] [ text "More Please!" ]
+    , text model.error
     ]
