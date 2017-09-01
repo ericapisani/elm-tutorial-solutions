@@ -1,6 +1,6 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Decode
 
@@ -29,6 +29,7 @@ init =
 type Msg =
   MorePlease
   | NewGif (Result Http.Error String)   -- Result will either be an error (Http.Error) or the string of a new URL for the GIF
+  | UpdateTopic String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -41,6 +42,9 @@ update msg model =
 
     NewGif (Err _) ->
       ({ model | error = "There was an error fetching a new image"}, Cmd.none)  -- Don't change the model
+
+    UpdateTopic newTopic ->
+      ({ model | topic = newTopic}, Cmd.none)
 
 
 -- Other function definitions
@@ -76,6 +80,7 @@ view model =
   div []
     [ h2 [] [text model.topic]
     , img [src model.gifUrl] []
+    , input [ onInput UpdateTopic ] []
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , text model.error
     ]
