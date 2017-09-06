@@ -63,6 +63,10 @@ getRandomGif topic =
     Http.send NewGif request
 
 
+optionGenerator: String -> Html msg
+optionGenerator dropdownLabel =
+  option [] [ text dropdownLabel ]
+
 decodeGifUrl : Decode.Decoder String  -- Declare that decodeGifUrl is going to return a decoded (from JSON to Elm) string (I think)
 decodeGifUrl =
   Decode.at ["data", "image_url"] Decode.string  -- Try to find a string value at json.data.image_url
@@ -82,8 +86,8 @@ view model =
     , img [src model.gifUrl] []
     , input [ placeholder "Enter a new topic", onInput UpdateTopic ] []
     , select [ onInput UpdateTopic ] [     -- Can create a helper function to create this list once it's working
-      option [] [text "Puppies"]
-      , option [] [text "Cats"]
+      optionGenerator "Puppies"
+      , optionGenerator "Kittens"
       ]
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , text model.error
